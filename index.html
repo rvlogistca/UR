@@ -1,135 +1,107 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conectar MetaMask - Connect EVM</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #0f0f0f;
-      color: #fff;
-    }
-    #connectMetaMask {
-      padding: 14px 28px;
-      background: #f6851b;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    #connectMetaMask:hover {
-      background: #e2761b;
-      transform: translateY(-1px);
-    }
-    #connectMetaMask:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    #walletAddress {
-      margin-top: 16px;
-      font-size: 15px;
-      color: #a1a1aa;
-    }
-    .connected {
-      background: #22c55e !important;
-    }
-  </style>
-</head>
-<body>
+<!DOCTYPE ---
+title: 'MetaMask Connect EVM - Ethereum Dapp Integration'
+sidebar_label: Introduction
+toc_max_heading_level: 2
+description: Connect your dapp to Ethereum and EVM-compatible networks using MetaMask Connect EVM. Get an EIP-1193 provider compatible with viem, ethers.js, and web3.js.
+keywords:
+  [
+    evm,
+    ethereum,
+    connect,
+    eip-1193,
+    provider,
+    ethers,
+    viem,
+    web3js,
+    metamask connect evm,
+    ethereum dapp,
+    createEVMClient,
+    web3 provider,
+    metamask integration,
+  ]
+---
 
-  <button id="connectMetaMask">🦊 Conectar MetaMask</button>
-  <p id="walletAddress"></p>
+import CardList from '@site/src/components/CardList'
 
-  <script type="module">
-    import { createEVMClient, getInfuraRpcUrls } from 'https://cdn.jsdelivr.net/npm/@metamask/connect-evm@latest/+esm';
+# Connect to EVM networks
 
-    const connectBtn = document.getElementById('connectMetaMask');
-    const addressDisplay = document.getElementById('walletAddress');
+MetaMask Connect EVM (`@metamask/connect-evm`) is the modern replacement for `@metamask/sdk`.
+Use it to connect your dapp to Ethereum and other EVM networks in the MetaMask mobile app
+or browser extension.
 
-    let evmClient = null;
+The EVM client provides an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)-compatible
+provider with the same shape as `window.ethereum`, meaning existing `viem`, `ethers.js`, or `web3.js`
+code works without changes.
+It also includes automatic platform detection, relay-based connections, session persistence, and
+convenience methods like [`connectAndSign`](reference/methods.md#connectandsign) and
+[`connectWith`](reference/methods.md#connectwith).
 
-    // Inicializa o client
-    async function initClient() {
-      evmClient = await createEVMClient({
-        dapp: {
-          name: 'Minha Dapp',
-          url: window.location.href,
-          // iconUrl: 'https://seudominio.com/icon.png', // opcional
-        },
-        api: {
-          // Coloque sua Infura API Key aqui (recomendado para produção)
-          supportedNetworks: {
-            ...getInfuraRpcUrls({ infuraApiKey: 'SUA_INFURA_API_KEY' }),
-            // Ou adicione manualmente:
-            // '0x1': 'https://mainnet.infura.io/v3/SUA_KEY',
-            // '0xaa36a7': 'https://sepolia.infura.io/v3/SUA_KEY',
-          },
-        },
-      });
-    }
+:::tip Coming from `@metamask/sdk`?
+See the [migration guide](guides/migrate-from-sdk.md) for a step-by-step upgrade path covering
+package changes, API differences, and new capabilities.
+:::
 
-    connectBtn.addEventListener('click', async () => {
-      try {
-        connectBtn.disabled = true;
-        connectBtn.textContent = 'Conectando...';
+:::info Going multichain?
+If your dapp supports (or plans to support) both EVM and Solana, use the
+[multichain client](../multichain/index.mdx) instead.
+The EVM and Solana clients share the same underlying multichain session, meaning the user only
+approves once. Get started with the [multichain quickstart](../multichain/quickstart/javascript.md).
+:::
 
-        if (!evmClient) {
-          await initClient();
-        }
+## Supported platforms and libraries
 
-        // Conecta (funciona com extensão e mobile)
-        const { accounts, chainId } = await evmClient.connect({
-          chainIds: ['0x1', '0xaa36a7'], // Ethereum Mainnet + Sepolia
-        });
+MetaMask Connect EVM supports multiple integration paths. You can install it from npm, use it through
+developer libraries like Wagmi, or integrate it through supported third-party libraries.
 
-        const account = accounts[0];
+Choose a quickstart based on your stack.
 
-        addressDisplay.textContent = `✅ Conectado: \( {account.slice(0, 6)}... \){account.slice(-4)} | Chain: ${chainId}`;
-        connectBtn.textContent = '✅ Carteira Conectada';
-        connectBtn.classList.add('connected');
+<CardList
+  items={[
+    {
+      href: '/metamask-connect/evm/quickstart/javascript',
+      title: 'JavaScript',
+      description: 'Set up MetaMask Connect EVM in a JavaScript dapp.',
+    },
+    {
+      href: '/metamask-connect/evm/quickstart/wagmi',
+      title: 'Wagmi',
+      description: 'Set up MetaMask Connect EVM in a React and Wagmi dapp.',
+    },
+    {
+      href: '/metamask-connect/evm/quickstart/react-native',
+      title: 'React Native',
+      description: 'Set up MetaMask Connect EVM in a React Native or Expo dapp.',
+    },
+  ]}
+/>
 
-        // Opcional: escuta mudanças de conta e rede
-        const provider = evmClient.getProvider();
-        provider.on('accountsChanged', (accounts) => {
-          if (accounts.length === 0) {
-            // Desconectou
-            addressDisplay.textContent = '';
-            connectBtn.textContent = '🦊 Conectar MetaMask';
-            connectBtn.classList.remove('connected');
-          } else {
-            addressDisplay.textContent = `✅ Conectado: \( {accounts[0].slice(0, 6)}... \){accounts[0].slice(-4)}`;
-          }
-        });
+## Library compatibility
 
-        provider.on('chainChanged', (chainId) => {
-          console.log('Rede alterada para:', chainId);
-          // Opcional: window.location.reload();
-        });
+The EVM client works seamlessly with popular Ethereum libraries:
 
-      } catch (error) {
-        if (error.code === 4001) {
-          addressDisplay.textContent = '❌ Conexão recusada pelo usuário';
-        } else if (error.code === -32002) {
-          addressDisplay.textContent = '⏳ Já existe uma solicitação pendente';
-        } else {
-          addressDisplay.textContent = '❌ Erro na conexão';
-          console.error(error);
-        }
-        connectBtn.textContent = '🦊 Conectar MetaMask';
-      } finally {
-        connectBtn.disabled = false;
-      }
-    });
-  </script>
-</body>
-</html>
+| Library                               | Compatibility                                   |
+| ------------------------------------- | ----------------------------------------------- |
+| [viem](https://viem.sh/)              | Use with `custom` transport                     |
+| [ethers.js](https://docs.ethers.org/) | Pass `client.getProvider` to `BrowserProvider`  |
+| [web3.js](https://web3js.org/)        | Pass `client.getProvider` to `Web3` constructor |
+
+## Frequently asked questions
+
+### What libraries does MetaMask Connect EVM work with?
+
+MetaMask Connect EVM provides an EIP-1193 compatible provider that works with viem (via `custom` transport), ethers.js (via `BrowserProvider`), web3.js (via `Web3` constructor), and Wagmi (via the `metamask` connector). It also supports wallet connector libraries like RainbowKit, ConnectKit, Dynamic, Privy, Web3Auth, and more.
+
+### Do I need an Infura API key for MetaMask Connect EVM?
+
+We recommend using an Infura API key for production dapps. MetaMask Connect EVM uses RPC URLs to route read requests and relay connections. Use the [`getInfuraRpcUrls`](./reference/methods.md#getinfurarpcurls) helper to generate URLs for all Infura-supported chains automatically, or provide your own RPC endpoints in the `api.supportedNetworks` configuration.
+
+### How do I migrate from `@metamask/sdk` to `@metamask/connect-evm`?
+
+To migrate:
+
+- Replace `@metamask/sdk` with `@metamask/connect-evm` in your dependencies.
+- Update imports from `MetaMaskSDK` to `createEVMClient`.
+- Switch from synchronous to async initialization.
+- Update your provider access pattern.
+
+See the [migration guide](guides/migrate-from-sdk.md) for a step-by-step walkthrough with code examples for each change.
