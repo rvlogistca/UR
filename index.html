@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conectar MetaMask</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #0f0f0f;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: #1a1a1a;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h1 { margin-bottom: 30px; }
+        #connectBtn {
+            padding: 14px 32px;
+            background: #f6851b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #connectBtn:hover { background: #e27714; }
+        #connectBtn.conectado { background: #22c55e; }
+        #status {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦊 Conecte sua Carteira</h1>
+        <button id="connectBtn">Conectar MetaMask</button>
+        <p id="status">Nenhuma carteira conectada</p>
+    </div>
+
+    <script>
+        const connectBtn = document.getElementById('connectBtn');
+        const status = document.getElementById('status');
+
+        connectBtn.addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const contas = await window.ethereum.request({
+                        method: 'eth_requestAccounts'
+                    });
+                    const conta = contas[0];
+                    
+                    status.textContent = `✅ Conectado: ${conta.slice(0, 6)}...${conta.slice(-4)}`;
+                    connectBtn.textContent = '✅ Carteira Conectada';
+                    connectBtn.classList.add('conectado');
+                } catch (erro) {
+                    status.textContent = '❌ Conexão cancelada ou erro';
+                }
+            } else {
+                alert('🦊 Instale a MetaMask primeiro!\n\nAcesse: metamask.io/download');
+                window.open('https://metamask.io/download', '_blank');
+            }
+        });
+    </script>
+</body>
+</html>

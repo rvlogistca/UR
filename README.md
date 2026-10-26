@@ -29,5 +29,5 @@ Plataforma Web3 completa desenvolvida com **Vite**, **Vanilla JavaScript** e **E
 ## ⚙️ Configuração e Instalação
 
 1. Clone o repositório ou descompacte os arquivos na pasta do projeto:
-   ```bash
-   cd rv-web3
+```bash
+cd rv-web3
